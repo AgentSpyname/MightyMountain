@@ -14,7 +14,7 @@ import random, sys, os, math
 runvalue = 0
 
 
-
+#comment
 #Here are all the Formulas
 itemvalue = 100
 lives = 5
