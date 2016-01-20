@@ -11,6 +11,8 @@ from direct.gui.DirectGui import *
 from direct.actor.Actor import Actor
 from direct.showbase.DirectObject import DirectObject
 import random, sys, os, math
+runvalue = 0
+
 
 
 #Here are all the Formulas
@@ -20,6 +22,8 @@ lives = 5
 
 # width of health and stamina bars
 BAR_WIDTH = 0.6
+PATHFINDING = 1
+
 
 # OnscreenText to hold game timer
 timeText = OnscreenText(text="0", style=1, mayChange=1,
@@ -32,6 +36,7 @@ def addInstructions(pos, msg):
 
 # Function to put title on the screen.
 def addTitle(text):
+
     return OnscreenText(text=text, style=1, fg=(1,1,1,1),
                         pos=(1.3,-0.95), align=TextNode.ARight, scale = .07)
 
@@ -39,10 +44,6 @@ def addTitle(text):
 numObjText = OnscreenText(text="10", style=1, fg=(1,1,1,1),
                           pos=(1.3, -0.60), scale = .05, mayChange=1)
 
-# Ralph's health
-healthBar = OnscreenImage(image="models/healthBar.png", 
-                          pos=(0.7, 0, 0.85), scale=(BAR_WIDTH,0.2,0.2))
-healthBar.setTransparency(TransparencyAttrib.MAlpha)
 
 # Ralph's stamina
 sprintBar = OnscreenImage(image="models/sprintBar.png", 
@@ -55,17 +56,24 @@ def printNumObj(n):
 class World(DirectObject):
 
     def __init__(self):
-        
+        self.walking = Vec3()
+        self.isMoving = False
+        self.dest = None
+        base.win.setClearColor(Vec4(0,0,0,1))
+
+
         self.keyMap = {"left":0, "right":0, "forward":0, "backward":0}
         base.win.setClearColor(Vec4(0,0,0,1))
 
         # here is the number of collectibles in the game
         self.numObjects = 50;
+        self.rare = 1; 
+        self.score = 0;
 
 
         
         # print the number of objects
-        printNumObj(self.numObjects)
+        printNumObj(self.score)
 
         # Post the instructions
         self.title = addTitle("MightyMountain")
@@ -189,7 +197,7 @@ class World(DirectObject):
         base.cTrav.addCollider(self.camGroundColNp, self.camGroundHandler)
 
         # Place the health items
-        self.placeHealthItems()
+        self.placeCoins()
         
         # Place the collectibles
         self.placeCollectibles()
@@ -209,12 +217,20 @@ class World(DirectObject):
         render.setLight(render.attachNewNode(directionalLight))
         
         taskMgr.add(self.move,"moveTask")
-        taskMgr.doMethodLater(0.5, self.healthDec, "healthTask")
+
+  
+
     
     # reinitialize all necessary parts of the game
     def restart(self):
+
+        lives = lives - 1
+
+        if lives == 0:
+            sys.exit()
+
         self.numObjects = 10
-        printNumObj(self.numObjects)
+        printNumObj(self.score)
         self.ralph.setPos(self.ralphStartPos)
         self.health = 100
         self.stamina = 100
@@ -223,23 +239,23 @@ class World(DirectObject):
         base.camera.reparentTo(self.ralph)
         base.camera.setPos(0, 40, 2)
         base.camera.lookAt(self.ralph)
-        self.placeHealthItems()
+        self.placeCoins()
         self.placeCollectibles()
         taskMgr.add(self.move,"moveTask")
-        taskMgr.doMethodLater(0.5, self.healthDec, "healthTask")
+   
     
     # Display ralph's health
-    def displayHealth(self):
-        healthBar['scale'] = (self.health*0.01*BAR_WIDTH,0.2,0.2)
-    
+   
     # Display ralph's stamina
     def displayStamina(self):
         sprintBar['scale'] = (self.stamina*0.01*BAR_WIDTH,0.2,0.2)
     
     # Allow ralph to collect the health items
-    def collectHealthItems(self, entry):
+    def collectCoins(self, entry):
         # refill ralph's health
-        self.health = 100
+        print self.score
+        printNumObj(self.score)
+        self.score = self.numObjects + self.score * 10
         # reposition the collectible
         self.placeItem(entry.getIntoNodePath().getParent())
     
@@ -248,7 +264,8 @@ class World(DirectObject):
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
         self.numObjects -= 1
-        printNumObj(self.numObjects)
+        printNumObj(self.score)
+        self.score = self.score + 500
         
     # Places an item randomly on the map    
     def placeItem(self, item):
@@ -286,7 +303,7 @@ class World(DirectObject):
         # remove placement collider
         self.collectGroundColNp.removeNode()
     
-    def placeHealthItems(self):
+    def placeCoins(self):
         self.placeholder = render.attachNewNode("HealthItem-Placeholder")
         self.placeholder.setPos(0,0,0)
         
@@ -314,7 +331,7 @@ class World(DirectObject):
         self.placeCol.setPos(0,0,0)
         
         # Add the health items to the placeCol node
-        for i in range(self.numObjects):
+        for i in range(self.rare):
             # Load in the health item model
             self.collect = loader.loadModel("models/jack")
             self.collect.setPos(0,0,0)
@@ -337,15 +354,7 @@ class World(DirectObject):
         self.keyMap[key] = value
     
     # Makes ralph's health decrease over time
-    def healthDec(self, task):
-        if (self.health <= 0):
-            self.die()
-        elif (self.numObjects != 0):
-            self.health -= 1
-            print self.health
-            return task.again
-        else:
-            return task.done
+
     
     # Make ralph's stamina regenerate
     def staminaReg(self, task):
@@ -424,7 +433,7 @@ class World(DirectObject):
             self.ralph.setZ(entries[0].getSurfacePoint(render).getZ())
             #base.camera.setZ(entries[0].getSurfacePoint(render).getZ()+5)
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "healthSphere"):
-            self.collectHealthItems(entries[0])
+            self.collectCoins(entries[0])
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "colSphere"):
             self.collectCollectibles(entries[0])
         else:
@@ -445,7 +454,6 @@ class World(DirectObject):
         self.floater.setZ(self.ralph.getZ()+2.0)
         base.camera.lookAt(self.floater)
         
-        self.displayHealth()
         self.displayStamina()
 
         return task.cont
@@ -488,7 +496,7 @@ class World(DirectObject):
         self.highscore.cleanup()
         # display restart or exit dialog
         self.dialog = YesNoDialog(dialogName="endDialog",
-                                   text="Would you like to play again?", 
+                                   text="Would you like to continue?", 
                                    command=self.endResult)
     
     def submitScore(self, name):
