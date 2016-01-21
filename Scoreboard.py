@@ -2,7 +2,6 @@ score = []
 with open("scores.txt") as f:
 	for i, line in enumerate(f):
 		score.append(int(line))
-
 score.sort(reverse=True)
 a = score[0]
 b = score[1]
