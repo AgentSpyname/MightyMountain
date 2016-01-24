@@ -1,6 +1,24 @@
 #Code Based of RoamingRalph
 #Items based of RoamingRalphEnhanced
 
+import sys
+from easygui import msgbox,choicebox, buttonbox, textbox
+z = 0
+while z == 0:
+    x = buttonbox(msg='Welcome to Mighty Mountain! Please select an option to start!', title='MightyMountain', choices=("Start Game", "View Scoreboard", "View Game Info", "Quit"), image="Images/Start.png")
+    if x == "Start Game":
+        msgbox("Loading Game")
+        z = 1
+    if x == "View Scoreboard":
+        msgbox("Loading Scoreboard")
+    if x == "View Game Info":
+        msgbox("Loading Game Info")
+        textbox("Game Version: 0.0.1")
+    if x == "Quit":
+        sys.exit()
+    
+
+
 import direct.directbase.DirectStart
 from panda3d.core import CollisionTraverser,CollisionNode, CollisionSphere
 from panda3d.core import CollisionHandlerQueue,CollisionRay
@@ -14,8 +32,8 @@ from direct.gui.DirectGui import *
 from direct.actor.Actor import Actor
 from direct.showbase.DirectObject import DirectObject
 
+import random, os, math
 
-import random, sys, os, math
 runvalue = 0
 
 #comment
