@@ -66,10 +66,8 @@ class World(DirectObject):
 
     def __init__(self):
         mySound = base.loader.loadSfx("music/music.mp3")
+        mySound.setLoopCount(0)
         mySound.play()
-
-
-
        
 
         base.setFrameRateMeter(True)
