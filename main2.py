@@ -111,7 +111,7 @@ class World(DirectObject):
         # It also keeps the original mesh, so there are now two copies ---
         # one optimized for rendering, one for collisions.  
 
-        self.environ = loader.loadModel("models/mountain.blend.x")      
+        self.environ = loader.loadModel("models/world2.egg")      
         self.environ.reparentTo(render)
         self.environ.setPos(0,0,0)
         
@@ -128,7 +128,7 @@ class World(DirectObject):
                                   "walk":"models/ralph-walk"})
         self.ralph.reparentTo(render)
         self.ralph.setScale(.2)
-        self.ralph.setPos(5,8,2)
+        self.ralph.setPos(5,10,2)
         
         # ralph's health
         self.health = 100

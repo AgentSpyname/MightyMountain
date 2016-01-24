@@ -111,7 +111,7 @@ class World(DirectObject):
         # It also keeps the original mesh, so there are now two copies ---
         # one optimized for rendering, one for collisions.  
 
-        self.environ = loader.loadModel("models/mountain")      
+        self.environ = loader.loadModel("models/world")      
         self.environ.reparentTo(render)
         self.environ.setPos(0,0,0)
         
