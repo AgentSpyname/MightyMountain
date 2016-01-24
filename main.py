@@ -18,8 +18,6 @@ from direct.showbase.DirectObject import DirectObject
 import random, sys, os, math
 runvalue = 0
 
- 
-
 #comment
 #Here are all the Formulas
 itemvalue = 100
@@ -67,7 +65,11 @@ class World(DirectObject):
 
 
     def __init__(self):
- 
+        mySound = base.loader.loadSfx("music/music.mp3")
+        mySound.play()
+
+
+
        
 
         base.setFrameRateMeter(True)
