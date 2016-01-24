@@ -1,3 +1,6 @@
+#Code Based of RoamingRalph
+#Items based of RoamingRalphEnhanced
+
 import direct.directbase.DirectStart
 from panda3d.core import CollisionTraverser,CollisionNode, CollisionSphere
 from panda3d.core import CollisionHandlerQueue,CollisionRay
@@ -10,9 +13,12 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.DirectGui import *
 from direct.actor.Actor import Actor
 from direct.showbase.DirectObject import DirectObject
+
+
 import random, sys, os, math
 runvalue = 0
 
+ 
 
 #comment
 #Here are all the Formulas
@@ -23,6 +29,7 @@ lives = 5
 # width of health and stamina bars
 BAR_WIDTH = 0.6
 PATHFINDING = 1
+
 
 
 # OnscreenText to hold game timer
@@ -52,10 +59,19 @@ sprintBar.setTransparency(TransparencyAttrib.MAlpha)
 
 def printNumObj(n):
     numObjText['text'] = (str)(n)
+ 
+
 
 class World(DirectObject):
 
+
+
     def __init__(self):
+ 
+       
+
+        base.setFrameRateMeter(True)
+
         self.walking = Vec3()
         self.isMoving = False
         self.dest = None
@@ -69,7 +85,6 @@ class World(DirectObject):
         self.numObjects = 50;
         self.rare = 1; 
         self.score = 0;
-
 
         
         # print the number of objects
@@ -217,6 +232,7 @@ class World(DirectObject):
         render.setLight(render.attachNewNode(directionalLight))
         
         taskMgr.add(self.move,"moveTask")
+
 
   
 
@@ -373,6 +389,10 @@ class World(DirectObject):
     # Accepts arrow keys to move either the player or the menu cursor,
     # Also deals with grid checking and collision detection
     def move(self, task):
+
+
+
+
         if self.numObjects != 0:
             # print the time
             self.time += globalClock.getDt()
@@ -525,5 +545,7 @@ class World(DirectObject):
         else:
             sys.exit()
 
+
 w = World()
+print("bar")
 run()
