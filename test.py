@@ -67,6 +67,8 @@ class World(DirectObject):
 
 
     def __init__(self):
+        mySound = base.loader.loadSfx("music/music.mp3")
+        mySound.play()
  
        
 
