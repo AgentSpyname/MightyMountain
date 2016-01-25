@@ -13,7 +13,7 @@ while z == 0:
         msgbox("Loading Scoreboard")
     if x == "View Game Info":
         msgbox("Loading Game Info")
-        textbox("Game Version: 0.0.1")
+        msgbox("Game Version: 0.0.1")
     if x == "Quit":
         sys.exit()
     
@@ -70,7 +70,7 @@ numObjText = OnscreenText(text="10", style=1, fg=(1,1,1,1),
 
 # Ralph's stamina
 sprintBar = OnscreenImage(image="models/sprintBar.png", 
-                          pos=(0.7, 0, 0.95), scale=(BAR_WIDTH,0.2,0.2))
+                          pos=(0.7, 0, 0.95), scale=(BAR_WIDTH,0.5,0.5))
 sprintBar.setTransparency(TransparencyAttrib.MAlpha)
 
 def printNumObj(n):
@@ -109,7 +109,7 @@ class World(DirectObject):
         printNumObj(self.score)
 
         # Post the instructions
-        self.title = addTitle("MightyMountain")
+        self.title = addTitle("Mighty Mountain")
         self.inst1 = addInstructions(0.95, "[ESC]: Quit")
         self.inst2 = addInstructions(0.90, "[A]: Rotate Ralph Left")
         self.inst3 = addInstructions(0.85, "[D]: Rotate Ralph Right")
@@ -153,8 +153,7 @@ class World(DirectObject):
         self.health = 100
         
         # ralph's stamina
-        self.stamina = 100
-
+        self.stamina = 200
         # Create a floater object.  We use the "floater" as a temporary
         # variable in a variety of calculations.
         self.floater = NodePath(PandaNode("floater"))
@@ -267,7 +266,7 @@ class World(DirectObject):
         printNumObj(self.score)
         self.ralph.setPos(self.ralphStartPos)
         self.health = 100
-        self.stamina = 100
+        self.stamina = 200
         self.time = 0
         base.camera.setPos(0, 0, 0)
         base.camera.reparentTo(self.ralph)
@@ -392,8 +391,8 @@ class World(DirectObject):
     
     # Make ralph's stamina regenerate
     def staminaReg(self, task):
-        if (self.stamina >= 100):
-            self.stamina = 100
+        if (self.stamina >= 200):
+            self.stamina = 200
             return task.done
         else:
             self.stamina += 1
