@@ -291,18 +291,20 @@ class World(DirectObject):
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
         self.numObjects -= 1
-        printNumObj(self.score)
+        x =  self.score
+        printNumObj(x)
         self.score = self.score + 500
-        print self.score
+        
         print "collectibles"
 
     def collectVase(self, entry):
         # remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
-        printNumObj(self.score)
+        x = self.score
+        printNumObj(x)
         self.score = self.score + 20
-        print (self.score)
+       
         print "Vase"
         
     # Places an item randomly on the map    
