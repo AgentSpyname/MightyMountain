@@ -82,12 +82,13 @@ class World(DirectObject):
 
 
     def __init__(self):
+        #Let's start the Music
         mySound = base.loader.loadSfx("music/music.mp3")
-        mySound.setLoopCount(0)
+        mySound.setLoopCount(0) #And Keep it On Loop
         mySound.play()
        
 
-        base.setFrameRateMeter(True)
+        base.setFrameRateMeter(True) #Shows the FrameRate in The Top Corner
 
         self.walking = Vec3()
         self.isMoving = False
@@ -102,6 +103,9 @@ class World(DirectObject):
         self.numObjects = 50;
         self.rare = 1; 
         self.vasenum = 10;
+        self.coinnum = 30;
+
+        #Here is the Score
         self.score = 0;
 
         
@@ -228,11 +232,11 @@ class World(DirectObject):
         self.camGroundHandler = CollisionHandlerQueue()
         base.cTrav.addCollider(self.camGroundColNp, self.camGroundHandler)
 
-        # Place the health items
         
         # Place the collectibles
         self.placeCollectibles() #Platinum 
         self.placeVases()
+        self.placeCoins()
        
         # Uncomment this line to show a visual representation of the 
         # collisions occuring
@@ -250,10 +254,6 @@ class World(DirectObject):
         
         taskMgr.add(self.move,"moveTask")
 
-
-  
-
-    
     # reinitialize all necessary parts of the game
     def restart(self):
 
@@ -278,31 +278,34 @@ class World(DirectObject):
         taskMgr.add(self.move,"moveTask")
    
     
-    # Display ralph's health
    
     # Display ralph's stamina
     def displayStamina(self):
         sprintBar['scale'] = (self.stamina*0.01*BAR_WIDTH,0.2,0.2)
     
-    # Allow ralph to collect the health items
 
     def collectCollectibles(self, entry): #Platinum 
-        # remove the collectible
+        #Remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
-        # update the number of objects
+        # Update the number of objects
         self.score = self.score + 500
         printNumObj(self.score)
         
-        print "collectibles"
 
     def collectVase(self, entry):
-        # remove the collectible
+        # Remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
-        # update the number of objects
+        # Update the number of objects
         self.score = self.score + 10
         printNumObj(self.score)
-        print (self.score)
-        print "Vase"
+    
+    def collectCoins(self, entry):
+        # Remove the collectible
+        entry.getIntoNodePath().getParent().removeNode()
+        # Update the number of objects
+        self.score = self.score + 1
+        printNumObj(self.score)
+      
         
     # Places an item randomly on the map    
     def placeItem(self, item):
@@ -387,6 +390,31 @@ class World(DirectObject):
             sphereNp = self.collect.attachNewNode(sphereNode)
             sphereColHandler = CollisionHandlerQueue()
             base.cTrav.addCollider(sphereNp, sphereColHandler)
+
+    def placeCoins(self):
+        self.placeC = render.attachNewNode("Collectible-Placeholder")
+        self.placeC.setPos(0,0,0)
+        
+        # Add the health items to the placeCol node
+        for i in range(self.coinnum):
+            # Load in the health item model
+            self.collect = loader.loadModel("models/Cookie.egg")
+            self.collect.setPos(0,0,0)
+            self.collect.reparentTo(self.placeC)
+            
+            self.placeItem(self.collect)
+            
+            # Add spherical collision detection
+            coinSphere = CollisionSphere(0,0,0,1)
+            sphereNode = CollisionNode('coinSphere')
+            sphereNode.addSolid(coinSphere)
+            sphereNode.setFromCollideMask(BitMask32.allOff())
+            sphereNode.setIntoCollideMask(BitMask32.bit(0))
+            sphereNp = self.collect.attachNewNode(sphereNode)
+            sphereColHandler = CollisionHandlerQueue()
+            base.cTrav.addCollider(sphereNp, sphereColHandler)
+
+
         
     #Records the state of the arrow keys
     def setKey(self, key, value):
@@ -479,6 +507,8 @@ class World(DirectObject):
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "colSphere"):
             self.collectCollectibles(entries[0])
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "vaseSphere"):
+            self.collectVase(entries[0])
+        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "coinSphere"):
             self.collectVase(entries[0])
         else:
             self.ralph.setPos(startpos)
