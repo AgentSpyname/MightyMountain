@@ -38,7 +38,6 @@ runvalue = 0
 
 #comment
 #Here are all the Formulas
-itemvalue = 100
 lives = 5
 
 
@@ -102,6 +101,7 @@ class World(DirectObject):
         # here is the number of collectibles in the game
         self.numObjects = 50;
         self.rare = 1; 
+        self.vasenum = 10;
         self.score = 0;
 
         
@@ -229,10 +229,10 @@ class World(DirectObject):
         base.cTrav.addCollider(self.camGroundColNp, self.camGroundHandler)
 
         # Place the health items
-        self.placeCoins()
         
         # Place the collectibles
-        self.placeCollectibles()
+        self.placeCollectibles() #Platinum 
+        self.placeVases()
        
         # Uncomment this line to show a visual representation of the 
         # collisions occuring
@@ -274,6 +274,7 @@ class World(DirectObject):
         base.camera.lookAt(self.ralph)
         self.placeCoins()
         self.placeCollectibles()
+        self.placeVases()
         taskMgr.add(self.move,"moveTask")
    
     
@@ -284,21 +285,25 @@ class World(DirectObject):
         sprintBar['scale'] = (self.stamina*0.01*BAR_WIDTH,0.2,0.2)
     
     # Allow ralph to collect the health items
-    def collectCoins(self, entry):
-        # refill ralph's health
-        print self.score
-        printNumObj(self.score)
-        self.score = self.numObjects + self.score * 10
-        # reposition the collectible
-        self.placeItem(entry.getIntoNodePath().getParent())
-    
-    def collectCollectibles(self, entry):
+
+    def collectCollectibles(self, entry): #Platinum 
         # remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
         self.numObjects -= 1
         printNumObj(self.score)
         self.score = self.score + 500
+        print self.score
+        print "collectibles"
+
+    def collectVase(self, entry):
+        # remove the collectible
+        entry.getIntoNodePath().getParent().removeNode()
+        # update the number of objects
+        printNumObj(self.score)
+        self.score = self.score + 20
+        print (self.score)
+        print "Vase"
         
     # Places an item randomly on the map    
     def placeItem(self, item):
@@ -336,28 +341,7 @@ class World(DirectObject):
         # remove placement collider
         self.collectGroundColNp.removeNode()
     
-    def placeCoins(self):
-        self.placeholder = render.attachNewNode("HealthItem-Placeholder")
-        self.placeholder.setPos(0,0,0)
-        
-        # Add the health items to the placeholder node
-        for i in range(5):
-            # Load in the health item model
-            self.healthy = loader.loadModel("models/sphere")
-            self.healthy.setPos(0,0,0)
-            self.healthy.reparentTo(self.placeholder)
-            
-            self.placeItem(self.healthy)
-            
-            # Add spherical collision detection
-            healthSphere = CollisionSphere(0,0,0,1)
-            sphereNode = CollisionNode('healthSphere')
-            sphereNode.addSolid(healthSphere)
-            sphereNode.setFromCollideMask(BitMask32.allOff())
-            sphereNode.setIntoCollideMask(BitMask32.bit(0))
-            sphereNp = self.healthy.attachNewNode(sphereNode)
-            sphereColHandler = CollisionHandlerQueue()
-            base.cTrav.addCollider(sphereNp, sphereColHandler)
+   
             
     def placeCollectibles(self):
         self.placeCol = render.attachNewNode("Collectible-Placeholder")
@@ -376,6 +360,29 @@ class World(DirectObject):
             colSphere = CollisionSphere(0,0,0,1)
             sphereNode = CollisionNode('colSphere')
             sphereNode.addSolid(colSphere)
+            sphereNode.setFromCollideMask(BitMask32.allOff())
+            sphereNode.setIntoCollideMask(BitMask32.bit(0))
+            sphereNp = self.collect.attachNewNode(sphereNode)
+            sphereColHandler = CollisionHandlerQueue()
+            base.cTrav.addCollider(sphereNp, sphereColHandler)
+
+    def placeVases(self):
+        self.placeV = render.attachNewNode("Collectible-Placeholder")
+        self.placeV.setPos(0,0,0)
+        
+        # Add the health items to the placeCol node
+        for i in range(self.vasenum):
+            # Load in the health item model
+            self.collect = loader.loadModel("models/bucket.egg")
+            self.collect.setPos(0,0,0)
+            self.collect.reparentTo(self.placeV)
+            
+            self.placeItem(self.collect)
+            
+            # Add spherical collision detection
+            vaseSphere = CollisionSphere(0,0,0,1)
+            sphereNode = CollisionNode('vaseSphere')
+            sphereNode.addSolid(vaseSphere)
             sphereNode.setFromCollideMask(BitMask32.allOff())
             sphereNode.setIntoCollideMask(BitMask32.bit(0))
             sphereNp = self.collect.attachNewNode(sphereNode)
@@ -469,10 +476,11 @@ class World(DirectObject):
         if (len(entries)>0) and (entries[0].getIntoNode().getName() == "terrain"):
             self.ralph.setZ(entries[0].getSurfacePoint(render).getZ())
             #base.camera.setZ(entries[0].getSurfacePoint(render).getZ()+5)
-        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "healthSphere"):
-            self.collectCoins(entries[0])
+
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "colSphere"):
             self.collectCollectibles(entries[0])
+        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "vaseSphere"):
+            self.collectVase(entries[0])
         else:
             self.ralph.setPos(startpos)
         
