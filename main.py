@@ -301,10 +301,9 @@ class World(DirectObject):
         # remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
-        x = self.score
-        printNumObj(x)
-        self.score = self.score + 20
-       
+        printNumObj(self.score)
+        self.score = self.score + 10
+        print (self.score)
         print "Vase"
         
     # Places an item randomly on the map    
