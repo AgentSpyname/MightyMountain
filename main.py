@@ -290,10 +290,8 @@ class World(DirectObject):
         # remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
-        self.numObjects -= 1
-        x =  self.score
-        printNumObj(x)
         self.score = self.score + 500
+        printNumObj(self.score)
         
         print "collectibles"
 
@@ -301,8 +299,8 @@ class World(DirectObject):
         # remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
-        printNumObj(self.score)
         self.score = self.score + 10
+        printNumObj(self.score)
         print (self.score)
         print "Vase"
         
