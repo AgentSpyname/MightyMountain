@@ -301,7 +301,7 @@ class World(DirectObject):
         entry.getIntoNodePath().getParent().removeNode()
         # update the number of objects
         printNumObj(self.score)
-        self.score = self.score + 20
+        self.score = self.score + 10
         print (self.score)
         print "Vase"
         
