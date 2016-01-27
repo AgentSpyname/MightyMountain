@@ -100,10 +100,14 @@ class World(DirectObject):
         base.win.setClearColor(Vec4(0,0,0,1))
 
         # here is the number of collectibles in the game
-        self.numObjects = 50;
+        #Uncomment the Next line if you want a total of objects
+
+        #self.numObjects = 50;
         self.rare = 1; 
         self.vasenum = 10;
         self.coinnum = 30;
+        self.silvernum = 5;
+        self.chestnum = 2;
 
         #Here is the Score
         self.score = 0;
@@ -237,6 +241,9 @@ class World(DirectObject):
         self.placeCollectibles() #Platinum 
         self.placeVases()
         self.placeCoins()
+        self.placeSilver()
+        self.placeGold()
+        self.placeChests()
        
         # Uncomment this line to show a visual representation of the 
         # collisions occuring
@@ -262,7 +269,7 @@ class World(DirectObject):
         if lives == 0:
             sys.exit()
 
-        self.numObjects = 10
+        #self.numObjects = 10
         printNumObj(self.score)
         self.ralph.setPos(self.ralphStartPos)
         self.health = 100
@@ -305,6 +312,27 @@ class World(DirectObject):
         # Update the number of objects
         self.score = self.score + 1
         printNumObj(self.score)
+
+    def collectSilver(self, entry):
+        # Remove the collectible
+        entry.getIntoNodePath().getParent().removeNode()
+        # Update the number of objects
+        self.score = self.score + 20
+        printNumObj(self.score)
+
+    def collectGold(self, entry):
+        # Remove the collectible
+        entry.getIntoNodePath().getParent().removeNode()
+        # Update the number of objects
+        self.score = self.score + 30
+        printNumObj(self.score)
+    def collectChest(self, entry):
+        # Remove the collectible
+        entry.getIntoNodePath().getParent().removeNode()
+        # Update the number of objects
+        self.score = self.score + 100
+        printNumObj(self.score)
+      
       
         
     # Places an item randomly on the map    
@@ -352,7 +380,7 @@ class World(DirectObject):
         # Add the health items to the placeCol node
         for i in range(self.rare):
             # Load in the health item model
-            self.collect = loader.loadModel("models/jack")
+            self.collect = loader.loadModel("models/moneyBag")
             self.collect.setPos(0,0,0)
             self.collect.reparentTo(self.placeCol)
             
@@ -375,7 +403,7 @@ class World(DirectObject):
         # Add the health items to the placeCol node
         for i in range(self.vasenum):
             # Load in the health item model
-            self.collect = loader.loadModel("models/bucket.egg")
+            self.collect = loader.loadModel("models/jar.egg")
             self.collect.setPos(0,0,0)
             self.collect.reparentTo(self.placeV)
             
@@ -414,6 +442,75 @@ class World(DirectObject):
             sphereColHandler = CollisionHandlerQueue()
             base.cTrav.addCollider(sphereNp, sphereColHandler)
 
+    def placeSilver(self):
+        self.placeS = render.attachNewNode("Collectible-Placeholder")
+        self.placeS.setPos(0,0,0)
+        
+        # Add the health items to the placeCol node
+        for i in range(self.silvernum):
+            # Load in the health item model
+            self.collect = loader.loadModel("models/Anvil.egg")
+            self.collect.setPos(0,0,0)
+            self.collect.reparentTo(self.placeS)
+            
+            self.placeItem(self.collect)
+            
+            # Add spherical collision detection
+            silverSphere = CollisionSphere(0,0,0,1)
+            sphereNode = CollisionNode('silverSphere')
+            sphereNode.addSolid(silverSphere)
+            sphereNode.setFromCollideMask(BitMask32.allOff())
+            sphereNode.setIntoCollideMask(BitMask32.bit(0))
+            sphereNp = self.collect.attachNewNode(sphereNode)
+            sphereColHandler = CollisionHandlerQueue()
+            base.cTrav.addCollider(sphereNp, sphereColHandler)
+
+    def placeGold(self):
+        self.placeG = render.attachNewNode("Collectible-Placeholder")
+        self.placeG.setPos(0,0,0)
+        
+        # Add the health items to the placeCol node
+        for i in range(self.silvernum):
+            # Load in the health item model
+            self.collect = loader.loadModel("models/key.egg")
+            self.collect.setPos(0,0,0)
+            self.collect.reparentTo(self.placeS)
+            
+            self.placeItem(self.collect)
+            
+            # Add spherical collision detection
+            goldSphere = CollisionSphere(0,0,0,1)
+            sphereNode = CollisionNode('goldSphere')
+            sphereNode.addSolid(goldSphere)
+            sphereNode.setFromCollideMask(BitMask32.allOff())
+            sphereNode.setIntoCollideMask(BitMask32.bit(0))
+            sphereNp = self.collect.attachNewNode(sphereNode)
+            sphereColHandler = CollisionHandlerQueue()
+            base.cTrav.addCollider(sphereNp, sphereColHandler)
+    def placeChests(self):
+        self.placeCh = render.attachNewNode("Collectible-Placeholder")
+        self.placeCh.setPos(0,0,0)
+        
+        # Add the health items to the placeCol node
+        for i in range(self.chestnum):
+            # Load in the health item model
+            self.collect = loader.loadModel("models/Keg.a2c.cr.egg")
+            self.collect.setPos(0,0,0)
+            self.collect.reparentTo(self.placeCh)
+            
+            self.placeItem(self.collect)
+            
+            # Add spherical collision detection
+            chestSphere = CollisionSphere(0,0,0,1)
+            sphereNode = CollisionNode('chestSphere')
+            sphereNode.addSolid(chestSphere)
+            sphereNode.setFromCollideMask(BitMask32.allOff())
+            sphereNode.setIntoCollideMask(BitMask32.bit(0))
+            sphereNp = self.collect.attachNewNode(sphereNode)
+            sphereColHandler = CollisionHandlerQueue()
+            base.cTrav.addCollider(sphereNp, sphereColHandler)
+
+
 
         
     #Records the state of the arrow keys
@@ -440,16 +537,14 @@ class World(DirectObject):
     # Accepts arrow keys to move either the player or the menu cursor,
     # Also deals with grid checking and collision detection
     def move(self, task):
-
-
-
-
+        """
         if self.numObjects != 0:
             # print the time
             self.time += globalClock.getDt()
             timeText['text'] = str(self.time)
         else:
             self.die()
+        """
         
         # save ralph's initial position so that we can restore it,
         # in case he falls off the map or runs into something.
@@ -509,7 +604,13 @@ class World(DirectObject):
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "vaseSphere"):
             self.collectVase(entries[0])
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "coinSphere"):
-            self.collectVase(entries[0])
+            self.collectCoins(entries[0])
+        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "silverSphere"):
+            self.collectSilver(entries[0])
+        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "goldSphere"):
+            self.collectGold(entries[0])
+        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "chestSphere"):
+            self.collectChest(entries[0])
         else:
             self.ralph.setPos(startpos)
         
@@ -550,7 +651,7 @@ class World(DirectObject):
         f.close()
         
         # number of collected collectibles
-        colObj = 10 - self.numObjects
+        #colObj = 10 - self.numObjects
         
         # enter new high score
         if int(c) < colObj or (int(c) == colObj and float(t) > self.time):
@@ -577,7 +678,7 @@ class World(DirectObject):
         f = open('scores.txt', 'w')
         
         # add new high score
-        value = name + '\n' + str(self.time) + '\n' + str(10 - self.numObjects)
+        #value = name + '\n' + str(self.time) + '\n' + str(10 - self.numObjects)
         f.write(value)
         
         f.close()
