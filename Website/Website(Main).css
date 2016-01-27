@@ -1,0 +1,22 @@
+<!DOCTYPE css>
+<css>
+<body>
+.stuff{
+	font-family:"Arial",sans-serif;
+	color:white;
+}
+.wholepage{
+	background-color:#808080;
+	padding:100px;
+}
+.container{
+	font-family:"Arial",sans-serif;
+	color:white;
+	font-size:15px;
+}
+.titles{
+	font-size:30px;
+	color:white;
+	font-family:"Times New Roman",sans-serif;
+}
+</body>
