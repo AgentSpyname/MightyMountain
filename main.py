@@ -319,7 +319,8 @@ class World(DirectObject):
         #Remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # Update the number of objects
-        self.score = self.score + 500
+        self.score = self.score * self.numObjects + 500
+        self.numObjects = self.numObjects - 1
         printNumObj(self.score)
         
 
@@ -328,6 +329,7 @@ class World(DirectObject):
         entry.getIntoNodePath().getParent().removeNode()
         # Update the number of objects
         self.score = self.score + 10
+        self.numObjects = self.numObjects - 1
         printNumObj(self.score)
     
     def collectCoins(self, entry):
@@ -336,6 +338,8 @@ class World(DirectObject):
         # Update the number of objects
         self.score = self.score + 1
         printNumObj(self.score)
+        self.numObjects = self.numObjects - 1
+
 
     def collectSilver(self, entry):
         # Remove the collectible
@@ -343,6 +347,8 @@ class World(DirectObject):
         # Update the number of objects
         self.score = self.score + 20
         printNumObj(self.score)
+        self.numObjects = self.numObjects - 1
+
 
     def collectGold(self, entry):
         # Remove the collectible
@@ -350,12 +356,16 @@ class World(DirectObject):
         # Update the number of objects
         self.score = self.score + 30
         printNumObj(self.score)
+        self.numObjects = self.numObjects - 1
+
     def collectChest(self, entry):
         # Remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
         # Update the number of objects
         self.score = self.score + 100
         printNumObj(self.score)
+        self.numObjects = self.numObjects - 1
+
 
     def deductRocks(self, entry):
         # Remove the collectible
