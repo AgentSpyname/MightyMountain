@@ -2,20 +2,33 @@
 #Items based of RoamingRalphEnhanced
 
 import sys
-from easygui import msgbox,choicebox, buttonbox, textbox
+from easygui import msgbox,choicebox, buttonbox, textbox,enterbox,passwordbox
+import MySQLdb
+
+
+
+
 z = 0
-while z == 0:
-    x = buttonbox(msg='Welcome to Mighty Mountain! Please select an option to start!', title='MightyMountain', choices=("Start Game", "View Scoreboard", "View Game Info", "Quit"), image="Images/Start.png")
-    if x == "Start Game":
-        msgbox("Loading Game")
-        z = 1
-    if x == "View Scoreboard":
-        msgbox("Loading Scoreboard")
-    if x == "View Game Info":
-        msgbox("Loading Game Info")
-        msgbox("Game Version: 0.0.1")
-    if x == "Quit":
-        sys.exit()
+auth = 0
+
+
+
+
+x = buttonbox(msg='Welcome to Mighty Mountain! Please select an option to start!', title='MightyMountain', choices=("Start Game", "View Scoreboard", "View Game Info", "Quit"), image="Images/Start.png")
+if x == "Start Game":
+     name = enterbox("Please enter your name!")
+     msgbox("Click OK To start the game!")
+         
+        
+if x == "View Scoreboard":
+    msgbox("Loading Scoreboard")
+   
+if x == "View Game Info":
+    msgbox("Loading Game Info")
+    msgbox("Game Version: 0.0.1")
+   
+if x == "Quit":
+    sys.exit()
     
 
 
@@ -31,7 +44,7 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.DirectGui import *
 from direct.actor.Actor import Actor
 from direct.showbase.DirectObject import DirectObject
-
+import time
 import random, os, math
 
 runvalue = 0
@@ -100,17 +113,21 @@ class World(DirectObject):
         base.win.setClearColor(Vec4(0,0,0,1))
 
         # here is the number of collectibles in the game
-        #Uncomment the Next line if you want a total of objects
-
-        #self.numObjects = 50;
+        
         self.rare = 1; 
         self.vasenum = 10;
         self.coinnum = 30;
         self.silvernum = 5;
         self.chestnum = 2;
 
+        #Here is the Obstacles in the game
+        self.rocknum = 500;
+
         #Here is the Score
         self.score = 0;
+
+        self.numObjects = self.rare + self.vasenum + self.coinnum + self.silvernum + self.chestnum
+
 
         
         # print the number of objects
@@ -150,16 +167,17 @@ class World(DirectObject):
         
         # Create the main character, Ralph
         self.ralphStartPos = self.environ.find("**/start_point").getPos()
+        print self.ralphStartPos
         self.ralph = Actor("models/ralph",
                                  {"run":"models/ralph-run",
                                   "walk":"models/ralph-walk"})
         self.ralph.reparentTo(render)
         self.ralph.setScale(.2)
         self.ralph.setPos(self.ralphStartPos)
+
+
         
-        # ralph's health
-        self.health = 100
-        
+   
         # ralph's stamina
         self.stamina = 200
         # Create a floater object.  We use the "floater" as a temporary
@@ -244,6 +262,9 @@ class World(DirectObject):
         self.placeSilver()
         self.placeGold()
         self.placeChests()
+
+        #Place the obstacles
+        self.placeRocks()
        
         # Uncomment this line to show a visual representation of the 
         # collisions occuring
@@ -261,27 +282,30 @@ class World(DirectObject):
         
         taskMgr.add(self.move,"moveTask")
 
+
     # reinitialize all necessary parts of the game
     def restart(self):
 
-        lives = lives - 1
-
-        if lives == 0:
-            sys.exit()
-
         #self.numObjects = 10
+        self.score = 0
         printNumObj(self.score)
         self.ralph.setPos(self.ralphStartPos)
-        self.health = 100
         self.stamina = 200
         self.time = 0
         base.camera.setPos(0, 0, 0)
         base.camera.reparentTo(self.ralph)
         base.camera.setPos(0, 40, 2)
         base.camera.lookAt(self.ralph)
-        self.placeCoins()
-        self.placeCollectibles()
+        # Place the collectibles
+        self.placeCollectibles() #Platinum 
         self.placeVases()
+        self.placeCoins()
+        self.placeSilver()
+        self.placeGold()
+        self.placeChests()
+
+        #Place the obstacles
+        self.placeRocks()
         taskMgr.add(self.move,"moveTask")
    
     
@@ -331,6 +355,21 @@ class World(DirectObject):
         entry.getIntoNodePath().getParent().removeNode()
         # Update the number of objects
         self.score = self.score + 100
+        printNumObj(self.score)
+
+    def deductRocks(self, entry):
+        # Remove the collectible
+        entry.getIntoNodePath().getParent().removeNode()
+        # Update the number of objects
+        if self.score > 500:
+            randomnum = random.randint(1,2)
+            if randomnum == 1:
+             self.score = self.score - 100 #Removes Score
+            if randomnum == 2:
+             self.score = self.score - 100 #Removes Score
+        if self.score < 500:
+            self.score = self.score - 100
+
         printNumObj(self.score)
       
       
@@ -510,6 +549,30 @@ class World(DirectObject):
             sphereColHandler = CollisionHandlerQueue()
             base.cTrav.addCollider(sphereNp, sphereColHandler)
 
+    def placeRocks(self):
+        self.placeR = render.attachNewNode("Collectible-Placeholder")
+        self.placeR.setPos(0,0,0)
+        
+        # Add the health items to the placeCol node
+        for i in range(self.rocknum):
+            # Load in the health item model
+            self.collect = loader.loadModel("models/smallcactus.egg")
+            self.collect.setScale(0.2)
+            self.collect.setPos(0,0,0)
+            self.collect.reparentTo(self.placeR)
+            
+            self.placeItem(self.collect)
+            
+            # Add spherical collision detection
+            rockSphere = CollisionSphere(0,0,0,1)
+            sphereNode = CollisionNode('rockSphere')
+            sphereNode.addSolid(rockSphere)
+            sphereNode.setFromCollideMask(BitMask32.allOff())
+            sphereNode.setIntoCollideMask(BitMask32.bit(0))
+            sphereNp = self.collect.attachNewNode(sphereNode)
+            sphereColHandler = CollisionHandlerQueue()
+            base.cTrav.addCollider(sphereNp, sphereColHandler)
+
 
 
         
@@ -536,15 +599,19 @@ class World(DirectObject):
     
     # Accepts arrow keys to move either the player or the menu cursor,
     # Also deals with grid checking and collision detection
+
+
+
+        
+
     def move(self, task):
-        """
-        if self.numObjects != 0:
-            # print the time
-            self.time += globalClock.getDt()
-            timeText['text'] = str(self.time)
-        else:
+        if self.score < 0:
             self.die()
-        """
+
+        if self.numObjects == 0:
+            self.die()
+      
+
         
         # save ralph's initial position so that we can restore it,
         # in case he falls off the map or runs into something.
@@ -611,6 +678,9 @@ class World(DirectObject):
             self.collectGold(entries[0])
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "chestSphere"):
             self.collectChest(entries[0])
+        elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "rockSphere"):
+            self.deductRocks(entries[0])
+
         else:
             self.ralph.setPos(startpos)
         
@@ -638,34 +708,64 @@ class World(DirectObject):
         # end all running tasks
         taskMgr.remove("moveTask")
         taskMgr.remove("healthTask")
+
+        # Open database connection
+        print "writing score"
+
+
+
+        conn = MySQLdb.connect("sql5.freemysqlhosting.net","sql5106009","DFxbmhVkvG","sql5106009")
+
+        cursor = conn.cursor()
+
+     
+      
+
+
+
+
+        cursor.execute("INSERT INTO scores (score, username) VALUES (%s, %s)", (self.score, name))
+        conn.commit()
+
+       
+
+        time.sleep(5)
+
+
         
         # open the file
-        f = open('scores.txt', 'r')
+        #f = open('scores.txt', 'r')
         
         # current name, time, and collected items score
-        n = f.readline()
-        t = f.readline()
-        c = f.readline()
+       # n = f.readline()
+        #t = f.readline()
+        #c = f.readline()
         
         # close the file
-        f.close()
+        #f.close()
         
         # number of collected collectibles
         #colObj = 10 - self.numObjects
-        
+     
         # enter new high score
-        if int(c) < colObj or (int(c) == colObj and float(t) > self.time):
-            self.label = DirectLabel(text="New High Score! Enter Your Name:",
+       
+ 
+
+        self.label = DirectLabel(text="Game over!",
                                       scale=.05, pos=(0,0,0.2))
-            self.entry = DirectEntry(text="", scale=.05, initialText="",
-                                      numLines=1, focus=1, pos=(-0.25,0,0),
-                                       command=self.submitScore)
-        else:
+
+        self.entry = DirectEntry(text="", scale=.05, initialText="",
+                                    numLines=1, focus=1, pos=(-0.25,0,0))
+
+        
+   
             # display high score
-            self.highscore = OkDialog(dialogName="highscoreDialog", 
-                                      text="Current High Score:\n\nName: " + n + "Time: " + t + "Items Collected: " + c,
-                                      command=self.showDialog)
-    
+
+        self.highscore = OkDialog(dialogName="highscoreDialog", 
+                                  text="Your High Score:\n\nName: " + name + "Score: " + str(self.score),
+                                  command=self.showDialog)
+
+
     def showDialog(self, arg):
         # cleanup highscore dialog
         self.highscore.cleanup()
@@ -675,6 +775,7 @@ class World(DirectObject):
                                    command=self.endResult)
     
     def submitScore(self, name):
+         
         f = open('scores.txt', 'w')
         
         # add new high score
