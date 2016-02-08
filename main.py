@@ -8,6 +8,8 @@
 import sys #Imports the sys module so we can eaisly end the game
 from easygui import msgbox,choicebox, buttonbox, textbox,enterbox  #For data entry throughout the program
 import MySQLdb #To write scores to an online scoreboard
+import webbrowser #Opening scores
+import time
 
 #Simple Startup Screen
 x = buttonbox(msg='Welcome to Mighty Mountain! Please select an option to start!', title='MightyMountain', choices=("Start Game", "View Scoreboard", "Quit"), image="Images/Start.png")
@@ -17,6 +19,9 @@ if x == "Start Game":
               
 if x == "View Scoreboard":
     msgbox("Loading Scoreboard")
+    webbrowser.open("http://mightymountain.herokuapp.com/")
+    time.sleep(10)
+    sys.exit()
 
 if x == "Quit":
     sys.exit()
@@ -34,7 +39,6 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.DirectGui import *
 from direct.actor.Actor import Actor
 from direct.showbase.DirectObject import DirectObject
-import time
 import random, os, math
 
 
