@@ -1,6 +1,6 @@
 #Mighty Mountain - A Python/Panda 3D Game to show Algebra in Computer Code and Games
 #Written By: AgentSpyname(Alexander Parsan) and MCPlayer81(Freddy Baker)
-#Concept By: Nushaab Syed
+#Concept and Plot By: Nushaab Syed
 #Under the GPL
 #Camera Code Based of: RoamingRalph
 #Inspired By: RoamingRalphEnhanced
