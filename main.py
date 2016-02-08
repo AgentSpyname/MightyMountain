@@ -152,7 +152,6 @@ class World(DirectObject):
         
         # Create the main character, Ralph
         self.ralphStartPos = self.environ.find("**/start_point").getPos()
-        print self.ralphStartPos
         self.ralph = Actor("models/ralph",
                                  {"run":"models/ralph-run",
                                   "walk":"models/ralph-walk"})
