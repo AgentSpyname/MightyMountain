@@ -1,38 +1,28 @@
-#Code Based of RoamingRalph
-#Items based of RoamingRalphEnhanced
+#Mighty Mountain - A Python/Panda 3D Game to show Algebra in Computer Code and Games
+#Written By: AgentSpyname(Alexander Parsan) and MCPlayer81(Freddy Baker)
+#Concept By: Nushaab Syed
+#Under the GPL
+#Camera Code Based of: RoamingRalph
+#Inspired By: RoamingRalphEnhanced
 
-import sys
-from easygui import msgbox,choicebox, buttonbox, textbox,enterbox,passwordbox
-import MySQLdb
+import sys #Imports the sys module so we can eaisly end the game
+from easygui import msgbox,choicebox, buttonbox, textbox,enterbox  #For data entry throughout the program
+import MySQLdb #To write scores to an online scoreboard
 
-
-
-
-z = 0
-auth = 0
-
-
-
-
-x = buttonbox(msg='Welcome to Mighty Mountain! Please select an option to start!', title='MightyMountain', choices=("Start Game", "View Scoreboard", "View Game Info", "Quit"), image="Images/Start.png")
+#Simple Startup Screen
+x = buttonbox(msg='Welcome to Mighty Mountain! Please select an option to start!', title='MightyMountain', choices=("Start Game", "View Scoreboard", "Quit"), image="Images/Start.png")
 if x == "Start Game":
      name = enterbox("Please enter your name!")
      msgbox("Click OK To start the game!")
-         
-        
+              
 if x == "View Scoreboard":
     msgbox("Loading Scoreboard")
-   
-if x == "View Game Info":
-    msgbox("Loading Game Info")
-    msgbox("Game Version: 0.0.1")
-   
+
 if x == "Quit":
     sys.exit()
-    
 
-
-import direct.directbase.DirectStart
+#Panda3D Modules
+import direct.directbase.DirectStart #Starts Panda3d
 from panda3d.core import CollisionTraverser,CollisionNode, CollisionSphere
 from panda3d.core import CollisionHandlerQueue,CollisionRay
 from panda3d.core import Filename,AmbientLight,DirectionalLight
@@ -47,17 +37,10 @@ from direct.showbase.DirectObject import DirectObject
 import time
 import random, os, math
 
-runvalue = 0
-
-#comment
-#Here are all the Formulas
-lives = 5
-
 
 # width of health and stamina bars
 BAR_WIDTH = 0.6
 PATHFINDING = 1
-
 
 
 # OnscreenText to hold game timer
@@ -87,7 +70,6 @@ sprintBar.setTransparency(TransparencyAttrib.MAlpha)
 
 def printNumObj(n):
     numObjText['text'] = (str)(n)
- 
 
 
 class World(DirectObject):
@@ -112,7 +94,7 @@ class World(DirectObject):
         self.keyMap = {"left":0, "right":0, "forward":0, "backward":0}
         base.win.setClearColor(Vec4(0,0,0,1))
 
-        # here is the number of collectibles in the game
+        #Here is the number of collectibles in the game
         
         self.rare = 1; 
         self.vasenum = 10;
@@ -126,10 +108,9 @@ class World(DirectObject):
         #Here is the Score
         self.score = 0;
 
+        #Here is the total Number of Objects to collect
         self.numObjects = self.rare + self.vasenum + self.coinnum + self.silvernum + self.chestnum
-
-
-        
+   
         # print the number of objects
         printNumObj(self.score)
 
@@ -176,8 +157,6 @@ class World(DirectObject):
         self.ralph.setPos(self.ralphStartPos)
 
 
-        
-   
         # ralph's stamina
         self.stamina = 200
         # Create a floater object.  We use the "floater" as a temporary
@@ -186,7 +165,7 @@ class World(DirectObject):
         self.floater.reparentTo(render)
 
         # Accept the control keys for movement and rotation
-        self.accept("escape", sys.exit)
+        self.accept("escape", self.endgame)
         
         # these don't work well in combination with the space bar
         self.accept("arrow_left", self.setKey, ["left",1])
@@ -264,7 +243,7 @@ class World(DirectObject):
         self.placeChests()
 
         #Place the obstacles
-        self.placeRocks()
+        self.placeRocks() #Cactus 
        
         # Uncomment this line to show a visual representation of the 
         # collisions occuring
@@ -283,7 +262,7 @@ class World(DirectObject):
         taskMgr.add(self.move,"moveTask")
 
 
-    # reinitialize all necessary parts of the game
+    #Reinitialize all necessary parts of the game
     def restart(self):
 
         #self.numObjects = 10
@@ -296,6 +275,7 @@ class World(DirectObject):
         base.camera.reparentTo(self.ralph)
         base.camera.setPos(0, 40, 2)
         base.camera.lookAt(self.ralph)
+        
         # Place the collectibles
         self.placeCollectibles() #Platinum 
         self.placeVases()
@@ -306,6 +286,10 @@ class World(DirectObject):
 
         #Place the obstacles
         self.placeRocks()
+
+        #Total number of obstacles
+        self.numObjects = self.rare + self.vasenum + self.coinnum + self.silvernum + self.chestnum
+
         taskMgr.add(self.move,"moveTask")
    
     
@@ -314,6 +298,7 @@ class World(DirectObject):
     def displayStamina(self):
         sprintBar['scale'] = (self.stamina*0.01*BAR_WIDTH,0.2,0.2)
     
+#Collects the item and modifies score
 
     def collectCollectibles(self, entry): #Platinum 
         #Remove the collectible
@@ -366,7 +351,7 @@ class World(DirectObject):
         printNumObj(self.score)
         self.numObjects = self.numObjects - 1
 
-
+#Unique function which handles collisions with a deduction obstacles.
     def deductRocks(self, entry):
         # Remove the collectible
         entry.getIntoNodePath().getParent().removeNode()
@@ -376,9 +361,26 @@ class World(DirectObject):
             if randomnum == 1:
              self.score = self.score - 100 #Removes Score
             if randomnum == 2:
-             self.score = self.score - 100 #Removes Score
+             self.score = self.score + 100 #Removes Score
+
         if self.score < 500:
             self.score = self.score - 100
+
+        randomnum = random.randint(1,2)
+
+        if randomnum == 1:
+            result =buttonbox(msg='A kind wizard wishes to help you on your quest? Trust him?', title='Alert!', choices=("Yes", "No"))
+
+            if result == "Yes":
+                othernum = random.randint(1,100)
+                othernum = othernum * self.score + self.numObjects #Y = MX + B
+
+                if othernum > 1000:
+                    msgbox("Good choice! Add 1,000 Points to your Score!")
+                    self.score = self.score + 1000
+                if othernum < 1000:
+                    msgbox("The wizard tricked you!He stole 100 Points!")
+                    self.score = self.score - 100
 
         printNumObj(self.score)
       
@@ -421,7 +423,7 @@ class World(DirectObject):
         self.collectGroundColNp.removeNode()
     
    
-            
+#Places all obstacles on map.          
     def placeCollectibles(self):
         self.placeCol = render.attachNewNode("Collectible-Placeholder")
         self.placeCol.setPos(0,0,0)
@@ -611,16 +613,23 @@ class World(DirectObject):
     # Also deals with grid checking and collision detection
 
 
-
-        
-
     def move(self, task):
         if self.score < 0:
             self.die()
 
         if self.numObjects == 0:
-            self.die()
-      
+            self.endgame()
+
+        randomnum1 = random.randint(1,1000)
+        randomnum2 = randomnum1 * self.numObjects + self.score
+
+        if randomnum1 == 1000:
+            result =buttonbox(msg='An odd villager wishes to help you on your quest? Trust him?', title='Alert!', choices=("Yes", "No"))
+            if result == "Yes":
+                if randomnum2 > 20000:
+                    msgbox("The villager grants you 4,000 Points!")
+                if randomnum2 < 20000:
+                    msgbox("The villager betrays you! He steal 200 points!")
 
         
         # save ralph's initial position so that we can restore it,
@@ -676,6 +685,7 @@ class World(DirectObject):
             self.ralph.setZ(entries[0].getSurfacePoint(render).getZ())
             #base.camera.setZ(entries[0].getSurfacePoint(render).getZ()+5)
 
+        #Adds all the items to the map and handles if they get hit.
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "colSphere"):
             self.collectCollectibles(entries[0])
         elif (len(entries)>0) and (entries[0].getIntoNode().getName() == "vaseSphere"):
@@ -712,7 +722,34 @@ class World(DirectObject):
         self.displayStamina()
 
         return task.cont
-    
+    #If the user collects all items and/or ends the game through Escape.
+    def endgame(self):
+         # end all running tasks
+        taskMgr.remove("moveTask")
+        taskMgr.remove("healthTask")
+
+        # Open database connection and inserts data.
+        conn = MySQLdb.connect("sql5.freemysqlhosting.net","sql5106009","DFxbmhVkvG","sql5106009")
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO scores (score, username) VALUES (%s, %s)", (self.score, name))
+        conn.commit()
+        time.sleep(5) #Error without this...
+
+        #Some text
+        self.label = DirectLabel(text="End Game!",
+                                      scale=.05, pos=(0,0,0.2))
+
+        self.entry = DirectEntry(text="", scale=.05, initialText="",
+                                    numLines=1, focus=1, pos=(-0.25,0,0))
+
+        
+   
+        #Display high score
+
+        self.highscore = OkDialog(dialogName="highscoreDialog", 
+                                  text="Your High Score:\n\nName: " + name + "Score: " + str(self.score),
+                                  command=sys.exit())
+
     # Restart or End?
     def die(self):
         # end all running tasks
@@ -720,46 +757,11 @@ class World(DirectObject):
         taskMgr.remove("healthTask")
 
         # Open database connection
-        print "writing score"
-
-
-
         conn = MySQLdb.connect("sql5.freemysqlhosting.net","sql5106009","DFxbmhVkvG","sql5106009")
-
         cursor = conn.cursor()
-
-     
-      
-
-
-
-
         cursor.execute("INSERT INTO scores (score, username) VALUES (%s, %s)", (self.score, name))
         conn.commit()
-
-       
-
         time.sleep(5)
-
-
-        
-        # open the file
-        #f = open('scores.txt', 'r')
-        
-        # current name, time, and collected items score
-       # n = f.readline()
-        #t = f.readline()
-        #c = f.readline()
-        
-        # close the file
-        #f.close()
-        
-        # number of collected collectibles
-        #colObj = 10 - self.numObjects
-     
-        # enter new high score
-       
- 
 
         self.label = DirectLabel(text="Game over!",
                                       scale=.05, pos=(0,0,0.2))
@@ -769,10 +771,10 @@ class World(DirectObject):
 
         
    
-            # display high score
+        #Display high score
 
         self.highscore = OkDialog(dialogName="highscoreDialog", 
-                                  text="Your High Score:\n\nName: " + name + "Score: " + str(self.score),
+                                  text="Your High Score:\n\nName: " + name + " " + "Score: " + str(self.score),
                                   command=self.showDialog)
 
 
@@ -783,23 +785,6 @@ class World(DirectObject):
         self.dialog = YesNoDialog(dialogName="endDialog",
                                    text="Would you like to continue?", 
                                    command=self.endResult)
-    
-    def submitScore(self, name):
-         
-        f = open('scores.txt', 'w')
-        
-        # add new high score
-        #value = name + '\n' + str(self.time) + '\n' + str(10 - self.numObjects)
-        f.write(value)
-        
-        f.close()
-        
-        self.entry.remove()
-        self.label.remove()
-        
-        self.dialog = YesNoDialog(dialogName="endDialog",
-                                   text="Would you like to play again?",
-                                    command=self.endResult)
     
     # Handle the dialog result
     def endResult(self, arg):
@@ -813,5 +798,4 @@ class World(DirectObject):
 
 
 w = World()
-print("bar")
 run()
