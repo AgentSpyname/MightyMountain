@@ -631,8 +631,10 @@ class World(DirectObject):
             if result == "Yes":
                 if randomnum2 > 20000:
                     msgbox("The villager grants you 4,000 Points!")
+                    self.score = self.score + 4000
                 if randomnum2 < 20000:
                     msgbox("The villager betrays you! He steal 200 points!")
+                    self.score = self.score - 200
 
         
         # save ralph's initial position so that we can restore it,
